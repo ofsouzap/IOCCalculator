@@ -47,7 +47,8 @@ namespace IOCCalculator
             string text;
             bool normalizeCase;
             bool onlyUseEnglishChars;
-            int readOffset;
+            List<SampleReadingOptions> readingOptions = new List<SampleReadingOptions>();
+            List<string> textSamples = new List<string>();
 
             Console.WriteLine("Text:");
             string input = Console.ReadLine();
@@ -69,14 +70,36 @@ namespace IOCCalculator
             Console.Write("Only use English Characters (0/1)?> ");
             onlyUseEnglishChars = int.Parse(Console.ReadLine()) != 0;
 
-            Console.Write("Letter Reading Offset> ");
-            readOffset = int.Parse(Console.ReadLine());
+            Console.Write("Letter Reading Samples ({startIndex1}:{interval1},{startIndex2}:{interval2} etc.)> ");
+            string sampleOptionsInput = Console.ReadLine();
 
-            if (readOffset > 1) text = GetTextFromStringByOffset(text, readOffset);
+            foreach (string sampleOption in sampleOptionsInput.Split(','))
+            {
 
-            Console.WriteLine($"IOC: {CalculateIOC(text, onlyUseEnglishChars)}");
+                string[] parts = sampleOption.Split(':');
+                int startIndex = int.Parse(parts[0]);
+                int interval = int.Parse(parts[1]);
 
-            Console.WriteLine();
+                SampleReadingOptions newOption = new SampleReadingOptions(startIndex, interval);
+
+                readingOptions.Add(newOption);
+
+            }
+
+            foreach (SampleReadingOptions option in readingOptions)
+            {
+
+                decimal ioc = CalculateIOC(
+                    GetTextFromStringByOffset(text.Substring(option.startIndex), option.interval),
+                    onlyUseEnglishChars
+                );
+
+                Console.WriteLine($"{option.startIndex}:{option.interval}");
+                Console.WriteLine($"IOC: {ioc}");
+                Console.WriteLine();
+
+            }
+
             Console.WriteLine("Program Finished");
             Console.ReadKey();
 
@@ -134,6 +157,19 @@ namespace IOCCalculator
 
             return total;
 
+        }
+
+        private struct SampleReadingOptions
+        {
+
+            public int startIndex;
+            public int interval;
+
+            public SampleReadingOptions(int startIndex, int interval)
+            {
+                this.startIndex = startIndex;
+                this.interval = interval;
+            }
         }
 
     }
