@@ -116,7 +116,7 @@ namespace IOCCalculator
 
             string output = "";
 
-            for (int i = 0; oldText.Length - 1 > i; i += offset)
+            for (int i = 0; oldText.Length > i; i += offset)
             {
 
                 output = output + oldText[i];
